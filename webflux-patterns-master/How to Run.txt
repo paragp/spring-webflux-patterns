@@ -1,0 +1,91 @@
+Setup java 17.0.4.1 
+
+Build the code through java 17.0.4.1 
+mvn clean install -DskipTests=true
+
+Run the external-services-v2.jar as java -jar .\external-services-v2.jar --server.port=7171
+
+Check the swagger URL http://localhost:7171/swagger-ui/ for the external services. 
+These are the dummy services to execute the Webflux patterns. Through Swagger UI these 
+services can be tested
+
+Run the code by executing the main class WebFluxPatternsApplication.java
+Follow the controller to get the URL for each services. For instance to verify the 
+aggregatorpattern run the URL http://localhost:8080/aggregatorpattern/product/2 on the browser.
+It will call the external service and return the response.
+
+Similarly  post running the project, in each scenario, test the services as follows:
+
+Note: To run any service, update the scanBasePackages in WebfluxPatternsApplication class.
+For instance to run circuitbreakerpattern service set the scanBasePackages value to 
+com.bank.webfluxpatterns.circuitbreakerpattern package
+
+1. aggregatorpattern: http://localhost:8080/aggregatorpattern/product/2
+2. scattergatherpattern: http://localhost:8080/scattergatherpattern/flights/ATL/LAS
+3. orchestratorparallel: Run this service through Postman as follows
+    Method: Post
+    Description: User is trying to order the product  
+    URL: http://localhost:8080/orchestratorparallel/order
+    Request: 
+    {
+        "userId":1,
+        "productId":1,
+        "quantity":1
+
+    }
+    Response:
+    {
+    "userId": 2,
+    "productId": 1,
+    "orderId": "5a840ec2-5b1a-497e-b097-445b48024378",
+    "status": "SUCCESS",
+    "shippingAddress": {
+        "street": "874 Lang Ridge",
+        "city": "Larueburgh",
+        "state": "Maryland",
+        "zipCode": "01770-5113"
+    },
+    "expectedDelivery": "2022-10-12"
+}
+Error 404 also implemented in case the product not found.
+Check the Debug logs for more details
+4. orchestratorsequence:
+Method: Post
+URL: http://localhost:8080/orchestratorsequence/order
+Request:
+{
+        "userId":2,
+        "productId":1,
+        "quantity":1
+}
+Response:
+{
+    "userId": 2,
+    "productId": 1,
+    "orderId": "496235b0-b2cf-4aae-bd23-e72dd656cb09",
+    "status": "SUCCESS",
+    "shippingAddress": {
+        "street": "5915 Aracely Manor",
+        "city": "Jennybury",
+        "state": "Mississippi",
+        "zipCode": "91892"
+    },
+    "expectedDelivery": "2022-10-17"
+}
+Check the Debug logs for more details
+
+5. For ratelimiterpattern run the external-services-v2.jar as 
+java -jar .\external-services-v2.jar --server.port=7171 --sec09.log.enabled=true 
+In this case, review service call is simulated to be chargeable as $1 per call
+Check the logs for the expected charges for every call. 
+In this case the call to review service is limited
+
+6. For client side ratelimiterpattern, call the 3rd party review service in sec09-ratelimit similar to 
+https://www.consumerreports.org/cro/a-to-z-index/products/index.htm
+Try out the service through http://localhost:7171/swagger-ui/#/sec09-rate-limit 
+& check the logs for the charges.
+Compare the rates after applying the client-side rate limiting configuration in the code
+
+7. To Run the Bulkhead pattern, execute the BulkheadTest class 
+
+All the patterns can also be executed through Postman Collection. Import the WebfluxPatterns.postman_collection.json
